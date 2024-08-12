@@ -13,7 +13,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(350, 570); // Set the canvas size to 1080x1920
+  createCanvas(400, 650); // Set the canvas size to 1080x1920
   createShapes();
 }
 
