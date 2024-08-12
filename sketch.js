@@ -2,8 +2,8 @@ let gridSize = 50;
 let padding = 10;
 let shapes = [];
 let rockImg, paperImg, scissorImg;
-let spreadSpeed =1; // Speed for spreading out
-let shapeCountPerCluster = 10; // Number of shapes per cluster
+let spreadSpeed =1.5; // Speed for spreading out
+let shapeCountPerCluster = 14; // Number of shapes per cluster
 
 function preload() {
   // Load images
@@ -13,7 +13,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(320, 530); // Set the canvas size to 1080x1920
+  createCanvas(350, 570); // Set the canvas size to 1080x1920
   createShapes();
 }
 
@@ -65,7 +65,7 @@ class MorphingShape {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
-    this.size = gridSize - padding * 1; // Size of the image
+    this.size = gridSize - padding * 1.4; // Size of the image
     this.type = type;
     this.offsetX = random(-5, 6);
     this.offsetY = random(-5, 6);
@@ -81,9 +81,22 @@ class MorphingShape {
       this.x += this.speedX;
       this.y += this.speedY;
 
-      // Bounce off edges
-      if (this.x < 0 || this.x > width - this.size) this.speedX *= -1;
-      if (this.y < 0 || this.y > height - this.size) this.speedY *= -1;
+         // Bounce off edges with boundary adjustment
+         if (this.x < 0) {
+          this.x = 0; // Set position to edge
+          this.speedX *= -1; // Reverse direction
+        } else if (this.x > width - this.size) {
+          this.x = width - this.size; // Set position to edge
+          this.speedX *= -1; // Reverse direction
+        }
+  
+        if (this.y < 0) {
+          this.y = 0; // Set position to edge
+          this.speedY *= -1; // Reverse direction
+        } else if (this.y > height - this.size) {
+          this.y = height - this.size; // Set position to edge
+          this.speedY *= -1; // Reverse direction
+        }
     }
   }
 
