@@ -3,7 +3,7 @@ let padding = 10;
 let shapes = [];
 let rockImg, paperImg, scissorImg;
 let spreadSpeed = 1.5; // Speed for spreading out
-let shapeCountPerCluster = 14; // Number of shapes per cluster
+let shapeCountPerCluster = 7; // Number of shapes per cluster
 
 function preload() {
   // Load images
@@ -14,8 +14,8 @@ function preload() {
 
 function setup() {
   // Set the canvas size to a 9:16 ratio
-  let canvasWidth = 360;
-  let canvasHeight = 640;
+  let canvasWidth = 700;
+  let canvasHeight = 700;
   createCanvas(canvasWidth, canvasHeight);
   createShapes();
 }
@@ -68,7 +68,7 @@ class MorphingShape {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
-    this.size = gridSize - padding * 1.4; // Size of the image
+    this.size = gridSize - padding * 1; // Size of the image
     this.type = type;
     this.offsetX = random(-5, 6);
     this.offsetY = random(-5, 6);
