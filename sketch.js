@@ -13,9 +13,17 @@ function preload() {
 }
 
 function setup() {
-  // Set the canvas size to a 9:16 ratio
-  let canvasWidth = 430;
-  let canvasHeight = 750;
+  // Dynamically set canvas size to fit the screen while maintaining a 9:16 aspect ratio
+  let aspectRatio = 9 / 16;
+  let canvasWidth = windowWidth;
+  let canvasHeight = windowHeight;
+
+  if (canvasWidth / canvasHeight > aspectRatio) {
+    canvasWidth = canvasHeight * aspectRatio;
+  } else {
+    canvasHeight = canvasWidth / aspectRatio;
+  }
+
   createCanvas(canvasWidth, canvasHeight);
   createShapes();
 }
@@ -42,24 +50,24 @@ function draw() {
 function createShapes() {
   shapes = [];
   
-  // Define random starting areas for each shape type
+  // Define starting areas for each shape type
   let areas = {
-    rock: { x: random(0, width), y: random(0, height) },
-    paper: { x: random(0, width), y: random(0, height) },
-    scissors: { x: random(0, width), y: random(0, height) }
+    rock: { x: width / 2, y: gridSize / 2 }, // Top middle
+    paper: { x: width / 2, y: height - gridSize / 2 }, // Bottom middle
+    scissors: { x: gridSize / 2, y: height / 2 } // Middle left
   };
 
-  // Create shapes for each type with random positions
+  // Create shapes for each type with random positions around the specified area
   for (let type in areas) {
     for (let i = 0; i < shapeCountPerCluster; i++) {
       let xOffset = random(-gridSize / 2, gridSize / 2);
       let yOffset = random(-gridSize / 2, gridSize / 2);
       
-      // Randomize the starting position within the defined area
-      let x = random(0, width);
-      let y = random(0, height);
+      // Position the shapes within their defined cluster
+      let x = areas[type].x + xOffset;
+      let y = areas[type].y + yOffset;
 
-      shapes.push(new MorphingShape(x + xOffset, y + yOffset, type));
+      shapes.push(new MorphingShape(x, y, type));
     }
   }
 }
@@ -68,7 +76,7 @@ class MorphingShape {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
-    this.size = gridSize - padding * 1; // Size of the image
+    this.size = gridSize - padding * 1.4; // Size of the image
     this.type = type;
     this.offsetX = random(-5, 6);
     this.offsetY = random(-5, 6);
@@ -79,7 +87,7 @@ class MorphingShape {
 
   update() {
     if (this.collisionCooldown > 0) {
-      this.collisionCooldown -= 0; // Decrease cooldown over time
+      this.collisionCooldown -= 1; // Decrease cooldown over time
     } else {
       this.x += this.speedX;
       this.y += this.speedY;
@@ -118,7 +126,7 @@ class MorphingShape {
 
   morphTo(newType) {
     this.type = newType;
-    this.collisionCooldown = 0; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
+    this.collisionCooldown = 60; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
   }
 }
 
