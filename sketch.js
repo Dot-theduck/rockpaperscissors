@@ -3,7 +3,9 @@ let padding = 10;
 let shapes = [];
 let rockImg, paperImg, scissorImg;
 let spreadSpeed = 1.5; // Speed for spreading out
-let shapeCountPerCluster = 7; // Number of shapes per cluster
+let shapeCountPerCluster = 10; // Number of shapes per cluster
+let roundEndTime = 0; // Time when the round should end
+let winnerDeclared = false; // Flag to check if a winner has been declared
 
 function preload() {
   // Load images
@@ -38,38 +40,60 @@ function draw() {
   }
 
   // Check for collisions and resolve them
+  let collisionOccurred = false;
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       if (shapes[i].collidesWith(shapes[j])) {
         resolveCollision(shapes[i], shapes[j]);
+        collisionOccurred = true; // Mark that a collision has occurred
       }
     }
+  }
+
+  // Check if all shapes are of the same type
+  if (!winnerDeclared && checkAllShapesSameType()) {
+    winnerDeclared = true;
+    roundEndTime = millis() + 6000; // Set the round end time to 6 seconds from now
+  }
+
+  // Check if the round should end and start a new round if needed
+  if (millis() > roundEndTime && roundEndTime > 0) {
+    createShapes();
+    roundEndTime = 0; // Reset round end time
+    winnerDeclared = false; // Reset winner flag
   }
 }
 
 function createShapes() {
   shapes = [];
-  
-  // Define starting areas for each shape type
-  let areas = {
-    rock: { x: width / 2, y: gridSize / 2 }, // Top middle
-    paper: { x: width / 2, y: height - gridSize / 2 }, // Bottom middle
-    scissors: { x: gridSize / 2, y: height / 2 } // Middle left
-  };
 
-  // Create shapes for each type with random positions around the specified area
-  for (let type in areas) {
-    for (let i = 0; i < shapeCountPerCluster; i++) {
-      let xOffset = random(-gridSize / 2, gridSize / 2);
-      let yOffset = random(-gridSize / 2, gridSize / 2);
-      
-      // Position the shapes within their defined cluster
-      let x = areas[type].x + xOffset;
-      let y = areas[type].y + yOffset;
+  // Create an array of shape types
+  let shapeTypes = ['rock', 'paper', 'scissors'];
 
-      shapes.push(new MorphingShape(x, y, type));
+  // Create shapes for each type with random positions within the canvas
+  for (let i = 0; i < shapeCountPerCluster * shapeTypes.length; i++) {
+    // Choose a random shape type
+    let type = random(shapeTypes);
+
+    // Generate random positions within the canvas
+    let x = random(width - gridSize);
+    let y = random(height - gridSize);
+
+    // Create and add the shape to the array
+    shapes.push(new MorphingShape(x, y, type));
+  }
+}
+
+function checkAllShapesSameType() {
+  if (shapes.length === 0) return false;
+
+  let firstType = shapes[0].type;
+  for (let shape of shapes) {
+    if (shape.type !== firstType) {
+      return false; // If any shape has a different type, return false
     }
   }
+  return true; // All shapes are of the same type
 }
 
 class MorphingShape {
@@ -126,7 +150,7 @@ class MorphingShape {
 
   morphTo(newType) {
     this.type = newType;
-    this.collisionCooldown = 0; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
+    this.collisionCooldown = 1; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
   }
 }
 
