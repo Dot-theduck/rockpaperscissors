@@ -2,7 +2,7 @@ let gridSize = 50;
 let padding = 10;
 let shapes = [];
 let rockImg, paperImg, scissorImg;
-let spreadSpeed = 1.5; // Speed for spreading out
+let spreadSpeed = 2; // Speed for spreading out
 let shapeCountPerCluster = 10; // Number of shapes per cluster
 let roundEndTime = 0; // Time when the round should end
 let winnerDeclared = false; // Flag to check if a winner has been declared
