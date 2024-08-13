@@ -14,8 +14,8 @@ function preload() {
 
 function setup() {
   // Set the canvas size to a 9:16 ratio
-  let canvasWidth = 400;
-  let canvasHeight = 400;
+  let canvasWidth = 430;
+  let canvasHeight = 750;
   createCanvas(canvasWidth, canvasHeight);
   createShapes();
 }
