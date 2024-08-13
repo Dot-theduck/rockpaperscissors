@@ -76,7 +76,7 @@ class MorphingShape {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
-    this.size = gridSize - padding * 1.4; // Size of the image
+    this.size = gridSize - padding * 1; // Size of the image
     this.type = type;
     this.offsetX = random(-5, 6);
     this.offsetY = random(-5, 6);
@@ -126,7 +126,7 @@ class MorphingShape {
 
   morphTo(newType) {
     this.type = newType;
-    this.collisionCooldown = 60; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
+    this.collisionCooldown = 0; // Set cooldown to create prolonged collision effect (e.g., 60 frames)
   }
 }
 
