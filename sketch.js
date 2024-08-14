@@ -1,9 +1,11 @@
 let gridSize = 50;
 let padding = 10;
+let xEdgePadding = 20; // Adjust this value to change the x-axis edge padding
+let yEdgePadding = 20; // Adjust this value to change the y-axis edge padding
 let shapes = [];
 let rockImg, paperImg, scissorImg;
 let spreadSpeed = 2; // Speed for spreading out
-let shapeCountPerCluster = 10; // Number of shapes per cluster
+let shapeCountPerCluster = 7; // Number of shapes per cluster
 let roundEndTime = 0; // Time when the round should end
 let winnerDeclared = false; // Flag to check if a winner has been declared
 
@@ -31,7 +33,8 @@ function setup() {
 }
 
 function draw() {
-  background(20, 20, 50);
+  //background(255, 255, 255); // Set background color to white
+  background(20, 20, 50);// lightish purple
 
   // Update and display all shapes
   for (let shape of shapes) {
@@ -40,12 +43,10 @@ function draw() {
   }
 
   // Check for collisions and resolve them
-  let collisionOccurred = false;
   for (let i = 0; i < shapes.length; i++) {
     for (let j = i + 1; j < shapes.length; j++) {
       if (shapes[i].collidesWith(shapes[j])) {
         resolveCollision(shapes[i], shapes[j]);
-        collisionOccurred = true; // Mark that a collision has occurred
       }
     }
   }
@@ -79,8 +80,22 @@ function createShapes() {
     let x = random(width - gridSize);
     let y = random(height - gridSize);
 
-    // Create and add the shape to the array
-    shapes.push(new MorphingShape(x, y, type));
+    // Ensure shapes do not overlap initially
+    let overlapping = false;
+    for (let shape of shapes) {
+      let d = dist(x, y, shape.x, shape.y);
+      if (d < gridSize) {
+        overlapping = true;
+        break;
+      }
+    }
+
+    if (!overlapping) {
+      // Create and add the shape to the array
+      shapes.push(new MorphingShape(x, y, type));
+    } else {
+      i--; // Retry creating a shape if there is overlap
+    }
   }
 }
 
@@ -100,7 +115,7 @@ class MorphingShape {
   constructor(x, y, type) {
     this.x = x;
     this.y = y;
-    this.size = gridSize - padding * 1; // Size of the image
+    this.size = gridSize - padding * 1.2; // Size of the image
     this.type = type;
     this.offsetX = random(-5, 6);
     this.offsetY = random(-5, 6);
@@ -117,19 +132,19 @@ class MorphingShape {
       this.y += this.speedY;
 
       // Bounce off edges with boundary adjustment
-      if (this.x < 0) {
-        this.x = 0; // Set position to edge
+      if (this.x < xEdgePadding) {
+        this.x = xEdgePadding; // Set position to edge
         this.speedX *= -1; // Reverse direction
-      } else if (this.x > width - this.size) {
-        this.x = width - this.size; // Set position to edge
+      } else if (this.x > width - this.size - xEdgePadding) {
+        this.x = width - this.size - xEdgePadding; // Set position to edge
         this.speedX *= -1; // Reverse direction
       }
 
-      if (this.y < 0) {
-        this.y = 0; // Set position to edge
+      if (this.y < yEdgePadding) {
+        this.y = yEdgePadding; // Set position to edge
         this.speedY *= -1; // Reverse direction
-      } else if (this.y > height - this.size) {
-        this.y = height - this.size; // Set position to edge
+      } else if (this.y > height - this.size - yEdgePadding) {
+        this.y = height - this.size - yEdgePadding; // Set position to edge
         this.speedY *= -1; // Reverse direction
       }
     }
@@ -155,6 +170,11 @@ class MorphingShape {
 }
 
 function resolveCollision(shape1, shape2) {
+  // Check if shapes are of the same type
+  if (shape1.type === shape2.type) {
+    return; // Do nothing if shapes are the same type
+  }
+
   // Apply Rock, Paper, Scissors rules
   if (shape1.type === 'rock' && shape2.type === 'scissors') {
     shape2.morphTo('rock');
@@ -168,6 +188,44 @@ function resolveCollision(shape1, shape2) {
     shape2.morphTo('paper');
   } else if (shape1.type === 'rock' && shape2.type === 'paper') {
     shape1.morphTo('paper');
+  }
+
+  // Calculate collision response without increasing speed
+  let dx = shape2.x - shape1.x;
+  let dy = shape2.y - shape1.y;
+  let distance = sqrt(dx * dx + dy * dy);
+  
+  // Normalize the distance vector
+  dx /= distance;
+  dy /= distance;
+  
+  // Calculate relative velocity
+  let relativeVelocityX = shape2.speedX - shape1.speedX;
+  let relativeVelocityY = shape2.speedY - shape1.speedY;
+  
+  // Dot product to determine the effect of collision
+  let dotProduct = dx * relativeVelocityX + dy * relativeVelocityY;
+  
+  // Adjust speeds for both shapes
+  shape1.speedX += dotProduct * dx;
+  shape1.speedY += dotProduct * dy;
+  shape2.speedX -= dotProduct * dx;
+  shape2.speedY -= dotProduct * dy;
+
+  // Normalize the speed to prevent increase
+  let speed1 = sqrt(shape1.speedX * shape1.speedX + shape1.speedY * shape1.speedY);
+  let speed2 = sqrt(shape2.speedX * shape2.speedX + shape2.speedY * shape2.speedY);
+  
+  let maxSpeed = spreadSpeed; // Maximum speed of shapes
+  
+  if (speed1 > maxSpeed) {
+    shape1.speedX = (shape1.speedX / speed1) * maxSpeed;
+    shape1.speedY = (shape1.speedY / speed1) * maxSpeed;
+  }
+  
+  if (speed2 > maxSpeed) {
+    shape2.speedX = (shape2.speedX / speed2) * maxSpeed;
+    shape2.speedY = (shape2.speedY / speed2) * maxSpeed;
   }
 }
 
